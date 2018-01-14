@@ -1,21 +1,19 @@
-package com.nectarsun.IOTWifiModule;
+package com.nectarsun.IOTWifi;
 
 import com.facebook.react.bridge.*;
-import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiConfiguration;
 import android.content.Context;
-import android.provider.Settings;
 
 import java.util.List;
 
-public class IOTWifiWifiModule extends ReactContextBaseJavaModule {
+public class IOTWifiModule extends ReactContextBaseJavaModule {
     WifiManager wifiManager;
     
-    public SimpleWifiModule(ReactApplicationContext reactContext) {
-        wifiManager = (WifiManager) getReactApplicationContext().getSystemService(Context.WIFI_SERVICE);
+    public IOTWifiModule(ReactApplicationContext reactContext) {
         super(reactContext);
+        wifiManager = (WifiManager) getReactApplicationContext().getSystemService(Context.WIFI_SERVICE);
     }
     
     @Override
@@ -29,12 +27,12 @@ public class IOTWifiWifiModule extends ReactContextBaseJavaModule {
     }
     
     @ReactMethod
-    public void connect(String ssid, Promise promise) {
-        connectSecure(ssid, "", false, promise);
+    public void connect(String ssid, Callback callback) {
+        connectSecure(ssid, "", false, callback);
     }
     
-    @ReactMethod
-    public void connectSecure(String ssid, String passphrase, Boolean isWEP, Promise promise) {
+    //    @ReactMethod
+    public void connectSecure(String ssid, String passphrase, Boolean isWEP, Callback callback) {
         WifiConfiguration configuration = new WifiConfiguration();
         
         configuration.allowedAuthAlgorithms.clear();
@@ -47,7 +45,7 @@ public class IOTWifiWifiModule extends ReactContextBaseJavaModule {
         configuration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
         
         if (!wifiManager.isWifiEnabled()) {
-            wifiManager.setWifiEnabled(enabled);
+            wifiManager.setWifiEnabled(true);
         }
         
         removeSSID(ssid);
@@ -60,10 +58,15 @@ public class IOTWifiWifiModule extends ReactContextBaseJavaModule {
         wifiManager.enableNetwork(networkId, true);
         wifiManager.reconnect();
         
-        promise.resolve(null);
+        callback.invoke();
     }
     
-    public void removeSSID(String ssid, Promise promise) {
+    //    @ReactMethod
+    //    public void removeSSID(String ssid, Callback callback) {
+    //        callback.invoke(null);
+    //    }
+    //
+    public void removeSSID(String ssid) {
         // Remove the existing configuration for this netwrok
         List<WifiConfiguration> configList = wifiManager.getConfiguredNetworks();
         String comparableSSID = ('"' + ssid + '"'); //Add quotes because wifiConfig.SSID has them
@@ -76,16 +79,16 @@ public class IOTWifiWifiModule extends ReactContextBaseJavaModule {
                 }
             }
         }
-        Promise.resolve(null);
     }
     
     @ReactMethod
-    public void getSSID(Promise promise) {
+    public void getSSID(Callback callback) {
         WifiInfo info = wifiManager.getConnectionInfo();
         String ssid = info.getSSID();
         if (ssid.startsWith("\"") && ssid.endsWith("\"")) {
             ssid = ssid.substring(1, ssid.length() - 1);
         }
-        promise.resolve(ssid);
+        callback.invoke(ssid);
     }
 }
+
