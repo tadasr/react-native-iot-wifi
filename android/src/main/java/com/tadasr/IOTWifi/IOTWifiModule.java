@@ -1,4 +1,4 @@
-package com.nectarsun.IOTWifi;
+package com.tadasr.IOTWifi;
 
 import com.facebook.react.bridge.*;
 import android.net.wifi.WifiInfo;
