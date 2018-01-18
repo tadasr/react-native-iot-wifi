@@ -4,12 +4,12 @@ This library was written to config iot devices. With iOS 11 Apple introduced NEH
 
 ## iOS
 > Important
-> IOTWifi uses NEHotspotConfigurationManager. To use the NEHotspotConfigurationManager class, you must enable the Hotspot Configuration capability in [Xcode](NEHotspotConfigurationManager).
+> IOTWifi uses NEHotspotConfigurationManager. To use the NEHotspotConfigurationManager class, you must enable the Hotspot Configuration capability in [Xcode](http://help.apple.com/xcode/mac/current/#/dev88ff319e7).
 
 1. Drang an drop `IOTWifi.xcodeproj` to your workspace
-2. Go to project -> `Build Phases` -> `Link Binary With Libraries` -> `+` -> add `libIOTWifi.a`
-3. Go to project -> `Build Phases` -> `Link Binary With Libraries` -> `+` -> add `NetworkExtension.framework`
-4. Go to project -> `Capabilities` -> enable `Hotspot Configuration`
+2. [Link target](https://help.apple.com/xcode/mac/current/#/dev51a648b07) to `libIOTWifi.a` library
+3. [Link target](https://help.apple.com/xcode/mac/current/#/dev51a648b07) to `NetworkExtension.framework` framework
+4. Enable [`Hotspot Configuration`](http://help.apple.com/xcode/mac/current/#/dev88ff319e7)
 
 ## android
 
