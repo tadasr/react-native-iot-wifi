@@ -9,13 +9,13 @@
 RCT_EXPORT_MODULE();
 
 RCT_EXPORT_METHOD(isAvaliable:(RCTResponseSenderBlock)callback) {
-
+    
 #if TARGET_OS_SIMULATOR
     callback(@[@NO]);
 #else
-    NSNumber *available = @YES;
+    NSNumber *available = @NO;
     if (@available(iOS 11.0, *)) {
-        available = @NO;
+        available = @YES;
     }
     callback(@[available]);
 #endif
@@ -104,3 +104,4 @@ RCT_REMAP_METHOD(getSSID,
 #endif
 
 @end
+
