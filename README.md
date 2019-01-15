@@ -10,9 +10,9 @@ This library was written to config iot devices. With iOS 11 Apple introduced NEH
 2. [Link target](https://help.apple.com/xcode/mac/current/#/dev51a648b07) to `libIOTWifi.a` library
 3. [Link target](https://help.apple.com/xcode/mac/current/#/dev51a648b07) to `NetworkExtension.framework` framework
 4. [Enable](http://help.apple.com/xcode/mac/current/#/dev88ff319e7) `Hotspot Configuration`
+5. [Enable](http://help.apple.com/xcode/mac/current/#/dev88ff319e7) `Access WiFi Information`
 
 ## android
-
 
 ## Usage
 

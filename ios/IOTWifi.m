@@ -53,7 +53,7 @@
             
             [[NEHotspotConfigurationManager sharedManager] applyConfiguration:configuration completionHandler:^(NSError * _Nullable error) {
                 if (error != nil) {
-                    callback(@[@"Error while configuring WiFi"]);
+                    callback(@[[error localizedDescription]]);
                 } else {
                     callback(@[[NSNull null]]);
                 }
@@ -82,9 +82,8 @@
     
     RCT_REMAP_METHOD(getSSID,
                      callback:(RCTResponseSenderBlock)callback) {
-        
         NSString *kSSID = (NSString*) kCNNetworkInfoKeySSID;
-        
+
         NSArray *ifs = (__bridge_transfer id)CNCopySupportedInterfaces();
         for (NSString *ifnam in ifs) {
             NSDictionary *info = (__bridge_transfer id)CNCopyCurrentNetworkInfo((__bridge CFStringRef)ifnam);
@@ -94,7 +93,7 @@
                 return;
             }
         }
-        
+
         callback(@[@"Cannot detect SSID"]);
     }
     
