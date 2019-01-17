@@ -10,8 +10,8 @@ import React, {Component} from 'react';
 import {Platform, StyleSheet, Text, View} from 'react-native';
 import Wifi from "react-native-iot-wifi";
 
-const ssid = 'Sun';
-const passphase = 'letitshine';
+const ssid = 'your wifi ssid';
+const passphase = 'your password';
 
 export default class App extends Component {
   constructor(props) {
