@@ -34,8 +34,8 @@ export default class App extends Component {
         ~{"\n"}
         SSID: {this.state.ssid} {"\n"}
         ~{"\n"}
-        Connected to {ssid}: {this.state.connected  ? "yes" : "no"}~{"\n"}
-        Error: {this.state.error}~{"\n"}
+        Connected to {ssid}: {this.state.connected  ? "yes" : "no"} {"\n"}
+        Error: {this.state.error}{"\n"}
         </Text>
       </View>
     );
@@ -49,6 +49,7 @@ export default class App extends Component {
       if (!avaliable) {
         return;
       }
+
       
       Wifi.getSSID((SSID) => {
         this.setState({ssid: SSID});
@@ -57,16 +58,23 @@ export default class App extends Component {
       Wifi.connectSecure(ssid, passphase, false, (error) => {
         this.setState({error: error});
         this.setState({connected: error == null});
+        
+        Wifi.getSSID((SSID) => {
+          this.setState({ssid: SSID});
+        });
       });
       
       // Wifi.connect(ssid, (error) => {
+      //   this.setState({error: error});
+      //   this.setState({connected: error == null});
+
       //   Wifi.getSSID((SSID) => {
       //     this.setState({ssid: SSID});
       //   });
 
-      //   Wifi.removeSSID(ssid, (error)=>{
-      //     this.setState({error: error});
-      //   });
+        // Wifi.removeSSID(ssid, (error)=>{
+        //   this.setState({error: error});
+        // });
       // });
     });
   }

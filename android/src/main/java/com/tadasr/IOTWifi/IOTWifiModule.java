@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
 import android.net.NetworkRequest;
 import android.net.Uri;
 import android.net.wifi.WifiInfo;
@@ -14,8 +15,10 @@ import android.net.wifi.WifiConfiguration;
 import android.content.Context;
 import android.os.Build;
 import android.provider.Settings;
+import android.util.Log;
 
 import java.io.BufferedReader;
+import java.io.Console;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -24,13 +27,14 @@ import java.util.List;
 
 public class IOTWifiModule extends ReactContextBaseJavaModule {
     WifiManager wifiManager;
-    Network wifiNetwork;
+    ConnectivityManager connectivityManager;
     ReactApplicationContext context;
     
     public IOTWifiModule(ReactApplicationContext reactContext) {
         super(reactContext);
-        wifiManager = (WifiManager) getReactApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        context = (ReactApplicationContext) getReactApplicationContext();
+        wifiManager = (WifiManager) getReactApplicationContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        connectivityManager = (ConnectivityManager) getReactApplicationContext().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        context = getReactApplicationContext();
     }
     
     @Override
@@ -48,13 +52,10 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
         connectSecure(ssid, "", false, callback);
     }
     
-    //    @ReactMethod
+    @ReactMethod
     public void connectSecure(String ssid, String passphrase, Boolean isWEP, Callback callback) {
         WifiConfiguration configuration = new WifiConfiguration();
         configuration.SSID = String.format("\"%s\"", ssid);
-        configuration.preSharedKey = passphrase.equals("") ? null : String.format("\"%s\"", passphrase);
-        configuration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-
 
         if (passphrase.equals("")) {
             configuration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
@@ -65,23 +66,6 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
             configuration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
         } else { // WPA/WPA2
             configuration.preSharedKey = "\"" + passphrase + "\"";
-
-            configuration.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
-
-            configuration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
-
-            configuration.status = WifiConfiguration.Status.ENABLED;
-
-            configuration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
-            configuration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
-
-            configuration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
-
-            configuration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
-            configuration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
-
-            configuration.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
-            configuration.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
         }
 
         if (!wifiManager.isWifiEnabled()) {
@@ -101,7 +85,7 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
             try {
                 Thread.sleep(6000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                callback.invoke(e.toString());
             }
             callback.invoke();
         } else {
@@ -122,6 +106,7 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
         if (configList != null) {
             for (WifiConfiguration wifiConfig : configList) {
                 if (wifiConfig.SSID.equals(comparableSSID)) {
+                    Log.d("wifi", wifiConfig.toString());
                     int networkId = wifiConfig.networkId;
                     wifiManager.removeNetwork(networkId);
                     wifiManager.saveConfiguration();
@@ -134,69 +119,18 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
     public void getSSID(Callback callback) {
         WifiInfo info = wifiManager.getConnectionInfo();
         String ssid = info.getSSID();
+
+        if (ssid == null || ssid == "<unknown ssid>" ) {
+            NetworkInfo nInfo = connectivityManager.getActiveNetworkInfo();
+            if (nInfo != null && nInfo.isConnected()) {
+                ssid = nInfo.getExtraInfo();
+            }
+        }
+
         if (ssid.startsWith("\"") && ssid.endsWith("\"")) {
             ssid = ssid.substring(1, ssid.length() - 1);
         }
+
         callback.invoke(ssid);
-    }
-
-    @ReactMethod
-    public void useWifiRequests(final boolean useRequests, final Promise promise) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            promise.reject("COMPATIBILITY", new Error("Android version is too low"));
-            return;
-        }
-        if (!useRequests) {
-            wifiNetwork = null;
-            promise.resolve(false);
-            return;
-        }
-
-        final ConnectivityManager manager = (ConnectivityManager) context
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkRequest.Builder builder;
-        builder = new NetworkRequest.Builder();
-        builder.addTransportType(NetworkCapabilities.TRANSPORT_WIFI);
-
-        manager.requestNetwork(builder.build(), new ConnectivityManager.NetworkCallback() {
-            @Override
-            public void onAvailable(Network network) {
-                if ((wifiNetwork = network) != null){
-                    promise.resolve(true);
-                } else {
-                    promise.reject("COMPATIBILITY", new Error("Android version is too low"));
-                }
-            }
-        });
-
-    }
-
-    @ReactMethod
-    public void request(final String urlString, final Promise promise) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            promise.reject("COMPATIBILITY", new Error("Android version is too low"));
-            return;
-        }
-        if (wifiNetwork == null) {
-            promise.reject("USAGE", new Error("Force enable wifi usage before calling this method"));
-            return;
-        }
-
-        try {
-            URL url = new URL(urlString);
-            URLConnection connection = wifiNetwork.openConnection(url);
-//            if (connection.connected) {
-                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                String inputLine  = "", line;
-                while ((line = in.readLine()) != null)
-                    inputLine += line;
-                in.close();
-                promise.resolve(inputLine);
-//            } else {
-//                promise.reject("USAGE", new Error("Failed to establish connection"));
-//            }
-        } catch (Exception e) {
-            promise.reject("USAGE", e);
-        }
     }
 }
