@@ -2,6 +2,10 @@
 Wifi configuration.
 This library was written to config iot devices. With iOS 11 Apple introduced NEHotspotConfiguration class for wifi configuration. Library supports same functionality on ios and android.
 
+## 0.3.0
+* `connectSecure()` now works
+* `getSSID()` should work on android
+
 ## iOS
 > Important
 > IOTWifi uses NEHotspotConfigurationManager. To use the NEHotspotConfigurationManager class, you must enable the Hotspot Configuration capability in [Xcode](http://help.apple.com/xcode/mac/current/#/dev88ff319e7).
