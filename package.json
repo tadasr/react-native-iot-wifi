@@ -1,8 +1,16 @@
 {
   "name": "react-native-iot-wifi",
-  "version": "0.3.0",
+  "version": "0.4.3",
   "description": "Connect to WiFi with React Native on Android and iOS.",
   "main": "index.js",
+  "files": [
+    "index.js",
+    "android",
+    "ios",
+    "README.*",
+    "package.json",
+    "LICENSE"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tadasr/react-native-iot-wifi.git"
