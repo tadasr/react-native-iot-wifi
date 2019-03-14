@@ -2,27 +2,15 @@ package com.tadasr.IOTWifi;
 
 import com.facebook.react.bridge.*;
 
-import android.content.Intent;
 import android.net.ConnectivityManager;
-import android.net.Network;
-import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
-import android.net.NetworkRequest;
-import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiConfiguration;
 import android.content.Context;
 import android.os.Build;
-import android.provider.Settings;
 import android.util.Log;
 
-import java.io.BufferedReader;
-import java.io.Console;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.List;
 
 public class IOTWifiModule extends ReactContextBaseJavaModule {
@@ -46,14 +34,22 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
     public void isAvaliable(Callback callback) {
         callback.invoke(true);
     }
-    
+
     @ReactMethod
     public void connect(String ssid, Callback callback) {
         connectSecure(ssid, "", false, callback);
     }
-    
+
     @ReactMethod
-    public void connectSecure(String ssid, String passphrase, Boolean isWEP, Callback callback) {
+    public void connectSecure(final String ssid, final String passphrase, final Boolean isWEP, final Callback callback) {
+        new Thread(new Runnable() {
+            public void run() {
+                connectToWifi(ssid, passphrase, isWEP, callback);
+            }
+        }).start();
+    }
+
+    private void connectToWifi(String ssid, String passphrase, Boolean isWEP, Callback callback) {
         WifiConfiguration configuration = new WifiConfiguration();
         configuration.SSID = String.format("\"%s\"", ssid);
 
@@ -81,13 +77,17 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
             // Enable it so that android can connect
             wifiManager.disconnect();
             wifiManager.enableNetwork(networkId, true);
-            wifiManager.reconnect();
-            try {
-                Thread.sleep(6000);
-            } catch (InterruptedException e) {
-                callback.invoke(e.toString());
+            boolean success = wifiManager.reconnect();
+            if (!success) {
+                callback.invoke("Fail");
+                return;
             }
-            callback.invoke();
+            try {
+                Thread.sleep(3000);
+                callback.invoke();
+            } catch (InterruptedException e) {
+                callback.invoke("Fail");
+            }
         } else {
             callback.invoke("Failed to add network configuration");
         }
@@ -98,11 +98,11 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
         removeSSID(ssid);
         callback.invoke();
     }
-    
+
     public void removeSSID(String ssid) {
         // Remove the existing configuration for this netwrok
         List<WifiConfiguration> configList = wifiManager.getConfiguredNetworks();
-        String comparableSSID = ('"' + ssid + '"'); //Add quotes because wifiConfig.SSID has them
+        String comparableSSID = ('"' + ssid + '"'); // Add quotes because wifiConfig.SSID has them
         if (configList != null) {
             for (WifiConfiguration wifiConfig : configList) {
                 if (wifiConfig.SSID.equals(comparableSSID)) {
@@ -114,13 +114,13 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
             }
         }
     }
-    
+
     @ReactMethod
     public void getSSID(Callback callback) {
         WifiInfo info = wifiManager.getConnectionInfo();
         String ssid = info.getSSID();
 
-        if (ssid == null || ssid == "<unknown ssid>" ) {
+        if (ssid == null || ssid == "<unknown ssid>") {
             NetworkInfo nInfo = connectivityManager.getActiveNetworkInfo();
             if (nInfo != null && nInfo.isConnected()) {
                 ssid = nInfo.getExtraInfo();
