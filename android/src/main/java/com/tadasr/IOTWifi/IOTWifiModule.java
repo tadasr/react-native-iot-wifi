@@ -50,6 +50,10 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
     }
 
     private void connectToWifi(String ssid, String passphrase, Boolean isWEP, Callback callback) {
+        if (Build.VERSION.SDK_INT > 28) {
+            callback.invoke("Fail");
+            return;
+        }
         WifiConfiguration configuration = new WifiConfiguration();
         configuration.SSID = String.format("\"%s\"", ssid);
 
