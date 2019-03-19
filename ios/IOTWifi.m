@@ -1,25 +1,18 @@
 #import "IOTWifi.h"
-#if !TARGET_OS_SIMULATOR
 #import <NetworkExtension/NetworkExtension.h>
-#endif
 #import <SystemConfiguration/CaptiveNetwork.h>
 
 
 @implementation IOTWifi
     RCT_EXPORT_MODULE();
     RCT_EXPORT_METHOD(isAvaliable:(RCTResponseSenderBlock)callback) {
-#if TARGET_OS_SIMULATOR
-        callback(@[@NO]);
-#else
         NSNumber *available = @NO;
         if (@available(iOS 11.0, *)) {
             available = @YES;
         }
         callback(@[available]);
-#endif
     }
     
-#if !TARGET_OS_SIMULATOR
     RCT_EXPORT_METHOD(connect:(NSString*)ssid
                       callback:(RCTResponseSenderBlock)callback) {
         if (@available(iOS 11.0, *)) {
@@ -108,7 +101,5 @@
                       rejecter:(RCTPromiseRejectBlock)reject) {
         reject(@"no_implementation", @"There are no implementation on iOS", [NSError errorWithDomain:@"com.iotwifi" code:-1 userInfo:nil]);
     }
-    
-#endif
-    @end
+@end
 
