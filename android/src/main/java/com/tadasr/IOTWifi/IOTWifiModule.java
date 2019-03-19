@@ -3,13 +3,17 @@ package com.tadasr.IOTWifi;
 import com.facebook.react.bridge.*;
 
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
+import android.net.NetworkRequest;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiConfiguration;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
+import android.text.TextUtils;
 
 import java.util.List;
 
@@ -94,6 +98,55 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
             }
         } else {
             callback.invoke("Failed to add network configuration");
+        }
+    }
+
+    @ReactMethod
+    public void bindToNetwork(final String ssid) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            NetworkRequest.Builder builder = new NetworkRequest.Builder();
+            builder.addTransportType(NetworkCapabilities.TRANSPORT_WIFI);
+            connectivityManager
+                .requestNetwork(builder.build(), new ConnectivityManager.NetworkCallback() {
+                        private boolean bound = false;
+                        @Override
+                        public void onAvailable(Network network) {
+                            NetworkInfo networkInfo = connectivityManager.getNetworkInfo(network);
+                            if (TextUtils.equals(networkInfo.getExtraInfo(), ssid) && !bound) {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    connectivityManager.bindProcessToNetwork(network);
+                                } else {
+                                    ConnectivityManager.setProcessDefaultNetwork(network);
+                                }
+                                try {
+                                    bound = true;
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onLost(Network network) {
+                            if (bound) {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    connectivityManager.bindProcessToNetwork(null);
+                                } else {
+                                    ConnectivityManager.setProcessDefaultNetwork(null);
+                                }
+                                connectivityManager.unregisterNetworkCallback(this);
+                            }
+                        }
+                    });
+        }
+    }
+
+    @ReactMethod
+    public void unbindNetwork() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            connectivityManager.bindProcessToNetwork(null);
+        } else {
+            ConnectivityManager.setProcessDefaultNetwork(null);
         }
     }
 
