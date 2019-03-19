@@ -2,6 +2,15 @@
 Wifi configuration.
 This library was written to config iot devices. With iOS 11 Apple introduced NEHotspotConfiguration class for wifi configuration. Library supports same functionality on ios and android.
 
+## 0.4.5
+Android:
+* Makes the connect call asynchronous on Android
+* Fails for Android Q as the API is deprecated
+
+iOS:
+* Fixes APIs on Simulator as it was behind a compile time macro
+* Exposed and returns defaults for Simulator targets
+
 ## 0.3.0
 * `connectSecure()` now works
 * `getSSID()` should work on android
