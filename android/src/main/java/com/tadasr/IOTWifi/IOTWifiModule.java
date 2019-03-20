@@ -102,17 +102,17 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void bindToNetwork(final String ssid) {
+    public void bindToNetwork() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             NetworkRequest.Builder builder = new NetworkRequest.Builder();
             builder.addTransportType(NetworkCapabilities.TRANSPORT_WIFI);
             connectivityManager
                 .requestNetwork(builder.build(), new ConnectivityManager.NetworkCallback() {
                         private boolean bound = false;
+
                         @Override
                         public void onAvailable(Network network) {
-                            NetworkInfo networkInfo = connectivityManager.getNetworkInfo(network);
-                            if (TextUtils.equals(networkInfo.getExtraInfo(), ssid) && !bound) {
+                            if (!bound) {
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                     connectivityManager.bindProcessToNetwork(network);
                                 } else {
