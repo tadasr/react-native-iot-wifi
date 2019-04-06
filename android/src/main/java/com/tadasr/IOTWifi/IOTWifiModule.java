@@ -21,39 +21,39 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
     WifiManager wifiManager;
     ConnectivityManager connectivityManager;
     ReactApplicationContext context;
-    
+
     public IOTWifiModule(ReactApplicationContext reactContext) {
         super(reactContext);
         wifiManager = (WifiManager) getReactApplicationContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         connectivityManager = (ConnectivityManager) getReactApplicationContext().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         context = getReactApplicationContext();
     }
-    
+
     @Override
     public String getName() {
         return "IOTWifi";
     }
-    
+
     @ReactMethod
     public void isAvaliable(Callback callback) {
         callback.invoke(true);
     }
 
     @ReactMethod
-    public void connect(String ssid, Callback callback) {
-        connectSecure(ssid, "", false, callback);
+    public void connect(String ssid, Boolean bindNetwork, Callback callback) {
+        connectSecure(ssid, "", false, bindNetwork, callback);
     }
 
     @ReactMethod
-    public void connectSecure(final String ssid, final String passphrase, final Boolean isWEP, final Callback callback) {
+    public void connectSecure(final String ssid, final String passphrase, final Boolean isWEP, Boolean bindNetwork, final Callback callback) {
         new Thread(new Runnable() {
             public void run() {
-                connectToWifi(ssid, passphrase, isWEP, callback);
+                connectToWifi(ssid, passphrase, isWEP, bindNetwork, callback);
             }
         }).start();
     }
 
-    private void connectToWifi(String ssid, String passphrase, Boolean isWEP, Callback callback) {
+    private void connectToWifi(String ssid, String passphrase, Boolean isWEP, Boolean bindNetwork, Callback callback) {
         if (Build.VERSION.SDK_INT > 28) {
             callback.invoke("Fail");
             return;
@@ -92,6 +92,9 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
             }
             try {
                 Thread.sleep(3000);
+                if (bindNetwork) {
+                    bindToNetwork(ssid);
+                }
                 callback.invoke();
             } catch (InterruptedException e) {
                 callback.invoke("Fail");
@@ -101,8 +104,7 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
         }
     }
 
-    @ReactMethod
-    public void bindToNetwork() {
+    private void bindToNetwork(final String ssid) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             NetworkRequest.Builder builder = new NetworkRequest.Builder();
             builder.addTransportType(NetworkCapabilities.TRANSPORT_WIFI);
@@ -112,7 +114,12 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
 
                         @Override
                         public void onAvailable(Network network) {
-                            if (!bound) {
+                            String offeredSSID = info.getSSID();
+                            if (offeredSSID.startsWith("\"") && offeredSSID.endsWith("\"")) {
+                                offeredSSID = offeredSSID.substring(1, offeredSSID.length() - 1);
+                            }
+
+                            if (!bound && offeredSSID.equals(ssid)) {
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                     connectivityManager.bindProcessToNetwork(network);
                                 } else {
@@ -141,7 +148,6 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
         }
     }
 
-    @ReactMethod
     public void unbindNetwork() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             connectivityManager.bindProcessToNetwork(null);
@@ -151,8 +157,12 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void removeSSID(String ssid, Callback callback) {
+    public void removeSSID(String ssid, Boolean unbind, Callback callback) {
         removeSSID(ssid);
+        if (unbind) {
+            unbindNetwork();
+        }
+
         callback.invoke();
     }
 
@@ -176,6 +186,7 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
     public void getSSID(Callback callback) {
         WifiInfo info = wifiManager.getConnectionInfo();
         String ssid = info.getSSID();
+        Log.d("wifi", ssid);
 
         if (ssid == null || ssid == "<unknown ssid>") {
             NetworkInfo nInfo = connectivityManager.getActiveNetworkInfo();
