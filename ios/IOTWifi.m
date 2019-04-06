@@ -13,7 +13,8 @@
         callback(@[available]);
     }
     
-    RCT_EXPORT_METHOD(connect:(NSString*)ssid
+    RCT_EXPORT_METHOD(connect:(NSString*)ssid,
+                      bindNetwork:(BOOL)bindNetwork,
                       callback:(RCTResponseSenderBlock)callback) {
         if (@available(iOS 11.0, *)) {
             NEHotspotConfiguration* configuration = [[NEHotspotConfiguration alloc] initWithSSID:ssid];
@@ -38,6 +39,7 @@
     RCT_EXPORT_METHOD(connectSecure:(NSString*)ssid
                       withPassphrase:(NSString*)passphrase
                       isWEP:(BOOL)isWEP
+                      bindNetwork:(BOOL)bindNetwork,
                       callback:(RCTResponseSenderBlock)callback) {
         
         if (@available(iOS 11.0, *)) {
@@ -57,7 +59,8 @@
         }
     }
     
-    RCT_EXPORT_METHOD(removeSSID:(NSString*)ssid
+    RCT_EXPORT_METHOD(removeSSID:(NSString*)ssid,
+                      unbindNetwork:(BOOL)unbindNetwork,
                       callback:(RCTResponseSenderBlock)callback) {
         
         if (@available(iOS 11.0, *)) {
