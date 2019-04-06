@@ -45,7 +45,7 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void connectSecure(final String ssid, final String passphrase, final Boolean isWEP, Boolean bindNetwork, final Callback callback) {
+    public void connectSecure(final String ssid, final String passphrase, final Boolean isWEP, final Boolean bindNetwork, final Callback callback) {
         new Thread(new Runnable() {
             public void run() {
                 connectToWifi(ssid, passphrase, isWEP, bindNetwork, callback);
@@ -114,6 +114,7 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
 
                         @Override
                         public void onAvailable(Network network) {
+                            WifiInfo info = wifiManager.getConnectionInfo();
                             String offeredSSID = info.getSSID();
                             if (offeredSSID.startsWith("\"") && offeredSSID.endsWith("\"")) {
                                 offeredSSID = offeredSSID.substring(1, offeredSSID.length() - 1);
