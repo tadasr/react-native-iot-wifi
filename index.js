@@ -32,15 +32,21 @@ function removeSSID(...args) {
   }
 }
 
-module.exports = Object.assign(
-  {},
-  NativeModules.IOTWifi,
-  {
-    connect: connect,
-    connectSecure: connectSecure,
-    removeWifi: removeWifi,
-  },
-);
+function getSSID(...args) {
+  NativeModules.getSSID(...args);
+}
+
+function isAvailable(...args) {
+  NativeModules.isAvailable(...args);
+}
+
+module.exports = {
+  connect: connect,
+  connectSecure: connectSecure,
+  getSSID: getSSID,
+  isAvailable: isAvailable,
+  removeSSID: removeSSID,
+},
 
 /**
  * (un)bindNetwork only affects Android
