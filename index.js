@@ -6,9 +6,9 @@ function connect(...args) {
   if (args.length < 2 || args.length > 3) {
     throw new TypeError('invalid arguments');
   } else if (args.length === 2) {
-    NativeModules.connect(args[0], false, args[1]);
+    NativeModules.IOTWifi.connect(args[0], false, args[1]);
   } else {
-    NativeModules.connect(...args);
+    NativeModules.IOTWifi.connect(...args);
   }
 }
 
@@ -16,9 +16,9 @@ function connectSecure(...args) {
   if (args.length < 4 || args.length > 5) {
     throw new TypeError('invalid arguments');
   } else if (args.length === 4) {
-    NativeModules.connectSecure(args[0], args[1], args[2], false, args[3]);
+    NativeModules.IOTWifi.connectSecure(args[0], args[1], args[2], false, args[3]);
   } else {
-    NativeModules.connectSecure(...args);
+    NativeModules.IOTWifi.connectSecure(...args);
   }
 }
 
@@ -26,18 +26,18 @@ function removeSSID(...args) {
   if (args.length < 2 || args.length > 3) {
     throw new TypeError('invalid arguments');
   } else if (args.length === 2) {
-    NativeModules.removeSSID(args[0], false, args[1]);
+    NativeModules.IOTWifi.removeSSID(args[0], false, args[1]);
   } else {
-    NativeModules.removeSSID(...args);
+    NativeModules.IOTWifi.removeSSID(...args);
   }
 }
 
 function getSSID(...args) {
-  NativeModules.getSSID(...args);
+  NativeModules.IOTWifi.getSSID(...args);
 }
 
 function isAvailable(...args) {
-  NativeModules.isAvailable(...args);
+  NativeModules.IOTWifi.isAvailable(...args);
 }
 
 module.exports = {
