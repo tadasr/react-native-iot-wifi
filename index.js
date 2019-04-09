@@ -46,7 +46,7 @@ module.exports = {
   getSSID: getSSID,
   isAvailable: isAvailable,
   removeSSID: removeSSID,
-},
+};
 
 /**
  * (un)bindNetwork only affects Android
