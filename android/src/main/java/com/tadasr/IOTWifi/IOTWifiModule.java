@@ -105,40 +105,41 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
     }
 
     private void bindToNetwork(final String ssid) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            NetworkRequest.Builder builder = new NetworkRequest.Builder();
-            builder.addTransportType(NetworkCapabilities.TRANSPORT_WIFI);
-            connectivityManager
-                .requestNetwork(builder.build(), new ConnectivityManager.NetworkCallback() {
-                        private boolean bound = false;
-
-                        @Override
-                        public void onAvailable(Network network) {
-                            WifiInfo info = wifiManager.getConnectionInfo();
-                            String offeredSSID = info.getSSID();
-                            if (offeredSSID.startsWith("\"") && offeredSSID.endsWith("\"")) {
-                                offeredSSID = offeredSSID.substring(1, offeredSSID.length() - 1);
-                            }
-
-                            if (!bound && offeredSSID.equals(ssid)) {
-                                try {
-                                    bindProcessToNetwork(network);
-                                    bound = true;
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void onLost(Network network) {
-                            if (bound) {
-                                bindProcessToNetwork(null);
-                                connectivityManager.unregisterNetworkCallback(this);
-                            }
-                        }
-                    });
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            return;
         }
+        NetworkRequest.Builder builder = new NetworkRequest.Builder();
+        builder.addTransportType(NetworkCapabilities.TRANSPORT_WIFI);
+        connectivityManager
+            .requestNetwork(builder.build(), new ConnectivityManager.NetworkCallback() {
+                    private boolean bound = false;
+
+                    @Override
+                    public void onAvailable(Network network) {
+                        WifiInfo info = wifiManager.getConnectionInfo();
+                        String offeredSSID = info.getSSID();
+                        if (offeredSSID.startsWith("\"") && offeredSSID.endsWith("\"")) {
+                            offeredSSID = offeredSSID.substring(1, offeredSSID.length() - 1);
+                        }
+
+                        if (!bound && offeredSSID.equals(ssid)) {
+                            try {
+                                bindProcessToNetwork(network);
+                                bound = true;
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onLost(Network network) {
+                        if (bound) {
+                            bindProcessToNetwork(null);
+                            connectivityManager.unregisterNetworkCallback(this);
+                        }
+                    }
+                });
     }
 
     private void bindProcessToNetwork(final Network network) {
