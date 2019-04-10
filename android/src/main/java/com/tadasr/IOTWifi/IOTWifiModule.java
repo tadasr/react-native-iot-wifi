@@ -121,12 +121,8 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
                             }
 
                             if (!bound && offeredSSID.equals(ssid)) {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                    connectivityManager.bindProcessToNetwork(network);
-                                } else {
-                                    ConnectivityManager.setProcessDefaultNetwork(network);
-                                }
                                 try {
+                                    bindProcessToNetwork(network);
                                     bound = true;
                                 } catch (Exception e) {
                                     e.printStackTrace();
@@ -137,11 +133,7 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
                         @Override
                         public void onLost(Network network) {
                             if (bound) {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                    connectivityManager.bindProcessToNetwork(null);
-                                } else {
-                                    ConnectivityManager.setProcessDefaultNetwork(null);
-                                }
+                                bindProcessToNetwork(null);
                                 connectivityManager.unregisterNetworkCallback(this);
                             }
                         }
@@ -149,11 +141,11 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
         }
     }
 
-    public void unbindNetwork() {
+    private void bindProcessToNetwork(final Network network) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            connectivityManager.bindProcessToNetwork(null);
+            connectivityManager.bindProcessToNetwork(network);
         } else {
-            ConnectivityManager.setProcessDefaultNetwork(null);
+            ConnectivityManager.setProcessDefaultNetwork(network);
         }
     }
 
@@ -161,7 +153,7 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
     public void removeSSID(String ssid, Boolean unbind, Callback callback) {
         removeSSID(ssid);
         if (unbind) {
-            unbindNetwork();
+            bindProcessToNetwork(null);
         }
 
         callback.invoke();
