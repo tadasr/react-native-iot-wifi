@@ -180,7 +180,6 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
     public void getSSID(Callback callback) {
         WifiInfo info = wifiManager.getConnectionInfo();
         String ssid = info.getSSID();
-        Log.d("wifi", ssid);
 
         if (ssid == null || ssid == "<unknown ssid>") {
             NetworkInfo nInfo = connectivityManager.getActiveNetworkInfo();
