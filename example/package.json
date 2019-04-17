@@ -7,9 +7,9 @@
     "test": "jest"
   },
   "dependencies": {
-    "react": "16.6.3",
-    "react-native": "0.57.8",
-    "react-native-iot-wifi": "file:../"
+    "react": "16.8.3",
+    "react-native": "0.59.4",
+    "react-native-iot-wifi": "file:../react-native-iot-wifi"
   },
   "devDependencies": {
     "babel-jest": "23.6.0",

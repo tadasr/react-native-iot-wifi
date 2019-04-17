@@ -32,8 +32,8 @@ iOS:
 ```javascript
 import Wifi from "react-native-iot-wifi";
 
-Wifi.isAvaliable((avaliable) => {
-  console.log(avaliable ? 'avaliable' : 'failed');
+Wifi.isAvailable((available) => {
+  console.log(available ? 'available' : 'failed');
 });
 
 Wifi.getSSID((SSID) => {

@@ -63,3 +63,7 @@ index.android.bundle
 *.project
 
 *.settings/
+
+example/android/app/bin/
+
+android/bin/

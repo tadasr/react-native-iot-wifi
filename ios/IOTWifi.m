@@ -5,7 +5,7 @@
 
 @implementation IOTWifi
     RCT_EXPORT_MODULE();
-    RCT_EXPORT_METHOD(isAvaliable:(RCTResponseSenderBlock)callback) {
+    RCT_EXPORT_METHOD(isAvailable:(RCTResponseSenderBlock)callback) {
         NSNumber *available = @NO;
         if (@available(iOS 11.0, *)) {
             available = @YES;

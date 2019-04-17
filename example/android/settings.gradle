@@ -3,4 +3,4 @@ rootProject.name = 'example'
 include ':app'
 
 include ':react-native-iot-wifi'
-project(':react-native-iot-wifi').projectDir = new File(rootProject.projectDir, '../../android')
+project(':react-native-iot-wifi').projectDir = new File(rootProject.projectDir, '../../react-native-iot-wifi/android')

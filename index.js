@@ -50,7 +50,7 @@ module.exports = {
 
 /**
  * (un)bindNetwork only affects Android
- * isAvaliable(Callback callback)
+ * isAvailable(Callback callback)
  * connect(String ssid, Boolean bindNetwork = false, Callback callback)
  * todo: connectSecure(String ssid, String passphrase, Boolean isWEP, Boolean bindNetwork = false, Callback callback)
  * removeSSID(String ssid, Boolean unbindNetwork = false, Callback callback)

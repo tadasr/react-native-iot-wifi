@@ -13,19 +13,20 @@ import android.net.wifi.WifiConfiguration;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
-import android.text.TextUtils;
 
 import java.util.List;
 
 public class IOTWifiModule extends ReactContextBaseJavaModule {
-    WifiManager wifiManager;
-    ConnectivityManager connectivityManager;
-    ReactApplicationContext context;
+    private WifiManager wifiManager;
+    private ConnectivityManager connectivityManager;
+    private ReactApplicationContext context;
 
     public IOTWifiModule(ReactApplicationContext reactContext) {
         super(reactContext);
-        wifiManager = (WifiManager) getReactApplicationContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        connectivityManager = (ConnectivityManager) getReactApplicationContext().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        wifiManager = (WifiManager) getReactApplicationContext().getApplicationContext()
+                .getSystemService(Context.WIFI_SERVICE);
+        connectivityManager = (ConnectivityManager) getReactApplicationContext().getApplicationContext()
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
         context = getReactApplicationContext();
     }
 
@@ -35,7 +36,7 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void isAvaliable(Callback callback) {
+    public void isAvailable(final Callback callback) {
         callback.invoke(true);
     }
 
@@ -45,7 +46,8 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void connectSecure(final String ssid, final String passphrase, final Boolean isWEP, final Boolean bindNetwork, final Callback callback) {
+    public void connectSecure(final String ssid, final String passphrase, final Boolean isWEP,
+            final Boolean bindNetwork, final Callback callback) {
         new Thread(new Runnable() {
             public void run() {
                 connectToWifi(ssid, passphrase, isWEP, bindNetwork, callback);
@@ -90,56 +92,68 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
                 callback.invoke("Fail");
                 return;
             }
-            try {
-                Thread.sleep(3000);
-                if (bindNetwork) {
-                    bindToNetwork(ssid);
-                }
+            boolean connected = pollForValidSSSID(10, ssid);
+            if (!connected) {
+                callback.invoke("Failed to connect");
+                return;
+            }
+            if (bindNetwork) {
+                bindToNetwork(ssid, callback);
+            } else {
                 callback.invoke();
-            } catch (InterruptedException e) {
-                callback.invoke("Fail");
             }
         } else {
             callback.invoke("Failed to add network configuration");
         }
     }
 
-    private void bindToNetwork(final String ssid) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            return;
+    private boolean pollForValidSSSID(int maxSeconds, String expectedSSID) {
+        try {
+            for (int i = 0; i < maxSeconds; i++) {
+                String ssid = this.getWifiSSID();
+                if (ssid != null && ssid.equalsIgnoreCase(expectedSSID)) {
+                    return true;
+                }
+                Thread.sleep(1000);
+            }
+        } catch (InterruptedException e) {
+            return false;
         }
+        return false;
+    }
+
+    private void bindToNetwork(final String ssid, final Callback callback) {
         NetworkRequest.Builder builder = new NetworkRequest.Builder();
         builder.addTransportType(NetworkCapabilities.TRANSPORT_WIFI);
-        connectivityManager
-            .requestNetwork(builder.build(), new ConnectivityManager.NetworkCallback() {
-                    private boolean bound = false;
+        connectivityManager.requestNetwork(builder.build(), new ConnectivityManager.NetworkCallback() {
 
-                    @Override
-                    public void onAvailable(Network network) {
-                        WifiInfo info = wifiManager.getConnectionInfo();
-                        String offeredSSID = info.getSSID();
-                        if (offeredSSID.startsWith("\"") && offeredSSID.endsWith("\"")) {
-                            offeredSSID = offeredSSID.substring(1, offeredSSID.length() - 1);
-                        }
+            private boolean bound = false;
 
-                        if (!bound && offeredSSID.equals(ssid)) {
-                            try {
-                                bindProcessToNetwork(network);
-                                bound = true;
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
+            @Override
+            public void onAvailable(Network network) {
+                String offeredSSID = getWifiSSID();
+
+                if (!bound && offeredSSID.equals(ssid)) {
+                    try {
+                        bindProcessToNetwork(network);
+                        bound = true;
+                        callback.invoke();
+                        return;
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
+                }
+                callback.invoke("Failed to bind");
+            }
 
-                    @Override
-                    public void onLost(Network network) {
-                        if (bound) {
-                            bindProcessToNetwork(null);
-                            connectivityManager.unregisterNetworkCallback(this);
-                        }
-                    }
-                });
+            @Override
+            public void onLost(Network network) {
+                if (bound) {
+                    bindProcessToNetwork(null);
+                    connectivityManager.unregisterNetworkCallback(this);
+                }
+            }
+        });
     }
 
     private void bindProcessToNetwork(final Network network) {
@@ -161,7 +175,7 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
     }
 
     public void removeSSID(String ssid) {
-        // Remove the existing configuration for this netwrok
+        // Remove the existing configuration for this network
         List<WifiConfiguration> configList = wifiManager.getConfiguredNetworks();
         String comparableSSID = ('"' + ssid + '"'); // Add quotes because wifiConfig.SSID has them
         if (configList != null) {
@@ -178,20 +192,25 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void getSSID(Callback callback) {
+        String ssid = this.getWifiSSID();
+        callback.invoke(ssid);
+    }
+
+    private String getWifiSSID() {
         WifiInfo info = wifiManager.getConnectionInfo();
         String ssid = info.getSSID();
 
-        if (ssid == null || ssid == "<unknown ssid>") {
+        if (ssid == null || ssid.equalsIgnoreCase("<unknown ssid>")) {
             NetworkInfo nInfo = connectivityManager.getActiveNetworkInfo();
             if (nInfo != null && nInfo.isConnected()) {
                 ssid = nInfo.getExtraInfo();
             }
         }
 
-        if (ssid.startsWith("\"") && ssid.endsWith("\"")) {
+        if (ssid != null && ssid.startsWith("\"") && ssid.endsWith("\"")) {
             ssid = ssid.substring(1, ssid.length() - 1);
         }
 
-        callback.invoke(ssid);
+        return ssid;
     }
 }
