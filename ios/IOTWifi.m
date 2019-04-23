@@ -5,7 +5,7 @@
 
 @implementation IOTWifi
     RCT_EXPORT_MODULE();
-    RCT_EXPORT_METHOD(isAvailable:(RCTResponseSenderBlock)callback) {
+    RCT_EXPORT_METHOD(isApiAvailable:(RCTResponseSenderBlock)callback) {
         NSNumber *available = @NO;
         if (@available(iOS 11.0, *)) {
             available = @YES;
@@ -14,11 +14,11 @@
     }
     
     RCT_EXPORT_METHOD(connect:(NSString*)ssid
-                      bindNetwork:(BOOL)bindNetwork
+                      bindNetwork:(BOOL)bindNetwork //Ignored
                       callback:(RCTResponseSenderBlock)callback) {
         if (@available(iOS 11.0, *)) {
             NEHotspotConfiguration* configuration = [[NEHotspotConfiguration alloc] initWithSSID:ssid];
-            configuration.joinOnce = true;
+            configuration.joinOnce = !bindNetwork;
             
             [[NEHotspotConfigurationManager sharedManager] applyConfiguration:configuration completionHandler:^(NSError * _Nullable error) {
                 if (error != nil) {
@@ -32,10 +32,7 @@
             callback(@[@"Not supported in iOS<11.0"]);
         }
     }
-    
-    RCT_EXPORT_METHOD(forceWifiUsage:(BOOL)force) {
-    }
-    
+        
     RCT_EXPORT_METHOD(connectSecure:(NSString*)ssid
                       withPassphrase:(NSString*)passphrase
                       isWEP:(BOOL)isWEP
@@ -44,7 +41,7 @@
         
         if (@available(iOS 11.0, *)) {
             NEHotspotConfiguration* configuration = [[NEHotspotConfiguration alloc] initWithSSID:ssid passphrase:passphrase isWEP:isWEP];
-            configuration.joinOnce = true;
+            configuration.joinOnce = !bindNetwork;
             
             [[NEHotspotConfigurationManager sharedManager] applyConfiguration:configuration completionHandler:^(NSError * _Nullable error) {
                 if (error != nil) {
@@ -60,7 +57,7 @@
     }
     
     RCT_EXPORT_METHOD(removeSSID:(NSString*)ssid
-                      unbindNetwork:(BOOL)unbindNetwork
+                      unbindNetwork:(BOOL)unbindNetwork //Ignored
                       callback:(RCTResponseSenderBlock)callback) {
         
         if (@available(iOS 11.0, *)) {
@@ -91,18 +88,6 @@
         }
 
         callback(@[@"Cannot detect SSID"]);
-    }
-    
-    RCT_EXPORT_METHOD(useWifiRequests:(BOOL)useRequests
-                      resolver:(RCTPromiseResolveBlock)resolve
-                      rejecter:(RCTPromiseRejectBlock)reject) {
-        resolve([NSNumber numberWithBool:false]);
-    }
-    
-    RCT_EXPORT_METHOD(request:(NSString*)urlString
-                      resolver:(RCTPromiseResolveBlock)resolve
-                      rejecter:(RCTPromiseRejectBlock)reject) {
-        reject(@"no_implementation", @"There are no implementation on iOS", [NSError errorWithDomain:@"com.iotwifi" code:-1 userInfo:nil]);
     }
 @end
 

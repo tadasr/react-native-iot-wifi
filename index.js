@@ -36,24 +36,23 @@ function getSSID(...args) {
   NativeModules.IOTWifi.getSSID(...args);
 }
 
-function isAvailable(...args) {
-  NativeModules.IOTWifi.isAvailable(...args);
+function isApiAvailable(...args) {
+  NativeModules.IOTWifi.isApiAvailable(...args);
 }
 
 module.exports = {
   connect: connect,
   connectSecure: connectSecure,
   getSSID: getSSID,
-  isAvailable: isAvailable,
+  isApiAvailable: isApiAvailable,
   removeSSID: removeSSID,
 };
 
 /**
  * (un)bindNetwork only affects Android
- * isAvailable(Callback callback)
+ * isApiAvailable(Callback callback)
  * connect(String ssid, Boolean bindNetwork = false, Callback callback)
  * todo: connectSecure(String ssid, String passphrase, Boolean isWEP, Boolean bindNetwork = false, Callback callback)
  * removeSSID(String ssid, Boolean unbindNetwork = false, Callback callback)
  * getSSID(Callback callback)
- * Android only: forceWifiUsage()
  */

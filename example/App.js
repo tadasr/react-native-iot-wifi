@@ -42,7 +42,7 @@ export default class App extends Component {
   }
 
   testWifi(){
-    Wifi.isAvailable((available) => {
+    Wifi.isApiAvailable((available) => {
       
       this.setState({isApiAvaliable: available});
       
