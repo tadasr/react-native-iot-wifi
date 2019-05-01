@@ -38,8 +38,8 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
         context = getReactApplicationContext();
     }
 
-    private String errorFromCode(int ErrorCode) {
-        return "Error: " + ErrorCode;
+    private String errorFromCode(int errorCode) {
+        return "ErrorCode: " + errorCode;
     }
 
     @Override
