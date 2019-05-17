@@ -131,7 +131,7 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
             }
         }
 
-        if (ssid.startsWith("\"") && ssid.endsWith("\"")) {
+        if (ssid != null && ssid.startsWith("\"") && ssid.endsWith("\"")) {
             ssid = ssid.substring(1, ssid.length() - 1);
         }
 
