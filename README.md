@@ -2,6 +2,13 @@
 Wifi configuration.
 This library was written to config iot devices. With iOS 11 Apple introduced NEHotspotConfiguration class for wifi configuration. Library supports same functionality on ios and android.
 
+## 1.0.0
+* Optional Force binding to a Wifi on both iOS and Android platforms
+* Android: Better error handling
+* Android: Detection for a system added config which cant be reused, removed or updated
+* Android: Reliable polling for requested network connection for callbacks
+* It does do a lot of other cleanup and re-use of code
+
 ## 0.4.5
 Android:
 * Makes the connect call asynchronous on Android
