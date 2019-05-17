@@ -3,7 +3,9 @@
   "version": "0.4.5",
   "description": "Connect to WiFi with React Native on Android and iOS.",
   "main": "index.js",
+  "types": "index.d.ts",
   "files": [
+    "index.d.ts",
     "index.js",
     "android",
     "ios",

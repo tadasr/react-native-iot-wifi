@@ -7,7 +7,7 @@
  */
 
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 import Wifi from "react-native-iot-wifi";
 
 const ssid = 'your wifi ssid';
@@ -30,7 +30,7 @@ export default class App extends Component {
     return (
       <View style={styles.container}>
         <Text style={styles.instructions}>{"\n"}
-        API avaliable: {this.state.isApiAvaliable ? "yes" : "no"} {"\n"}
+        API available: {this.state.isApiAvaliable ? "yes" : "no"} {"\n"}
         ~{"\n"}
         SSID: {this.state.ssid} {"\n"}
         ~{"\n"}
@@ -42,11 +42,11 @@ export default class App extends Component {
   }
 
   testWifi(){
-    Wifi.isAvaliable((avaliable) => {
+    Wifi.isApiAvailable((available) => {
       
-      this.setState({isApiAvaliable: avaliable});
+      this.setState({isApiAvaliable: available});
       
-      if (!avaliable) {
+      if (!available) {
         return;
       }
 
