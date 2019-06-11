@@ -214,7 +214,10 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
         if (existingNetworkId == -1) {
             return success;
         }
-        success = wifiManager.removeNetwork(existingNetworkId) && wifiManager.saveConfiguration();
+        success = wifiManager.removeNetwork(existingNetworkId);
+        if (success && Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            success = wifiManager.saveConfiguration();
+        }
         //If not our config then success would be false
         return success;
     }
