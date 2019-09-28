@@ -24,7 +24,21 @@
                 if (error != nil) {
                     callback(@[@"Error while configuring WiFi"]);
                 } else {
-                    callback(@[[NSNull null]]);
+                    
+                    NSString *kSSID = (NSString*) kCNNetworkInfoKeySSID;
+                    
+                    NSArray *ifs = (__bridge_transfer id)CNCopySupportedInterfaces();
+                    for (NSString *ifnam in ifs) {
+                      NSDictionary *info = (__bridge_transfer id)CNCopyCurrentNetworkInfo((__bridge CFStringRef)ifnam);
+                      if (info[kSSID] == ssid) {
+                        callback(@[[NSNull null]]);
+                        return;
+                      } else {
+                          callback(@[[NSString  stringWithFormat:@"Unable to join %@", ssid]]);
+                        return;
+                      }
+                    }
+
                 }
             }];
             
@@ -47,7 +61,20 @@
                 if (error != nil) {
                     callback(@[[error localizedDescription]]);
                 } else {
-                    callback(@[[NSNull null]]);
+
+                    NSString *kSSID = (NSString*) kCNNetworkInfoKeySSID;
+                    
+                    NSArray *ifs = (__bridge_transfer id)CNCopySupportedInterfaces();
+                    for (NSString *ifnam in ifs) {
+                      NSDictionary *info = (__bridge_transfer id)CNCopyCurrentNetworkInfo((__bridge CFStringRef)ifnam);
+                      if (info[kSSID] == ssid) {
+                        callback(@[[NSNull null]]);
+                        return;
+                      } else {
+                          callback(@[[NSString  stringWithFormat:@"Unable to join %@", ssid]]);
+                        return;
+                      }
+                    }
                 }
             }];
             
