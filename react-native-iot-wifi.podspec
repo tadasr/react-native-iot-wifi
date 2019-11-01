@@ -14,4 +14,5 @@ Pod::Spec.new do |s|
 
   s.source       = { :git => "https://github.com/tadasr/react-native-iot-wifi.git", :tag => "#{s.version}" }
   s.source_files  = "ios/**/*.{h,m}"
+  s.dependancy = "React"
 end
