@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.description         = package['description']
   s.homepage            = package['homepage']
   s.license             = package['license']
-  s.author              = package['author']
+  s.author              = package['authors_0']
   s.source              = { :git => 'https://github.com/tadasr/react-native-iot-wifi.git' }
   s.platform              = :ios, '10.3'
   s.ios.deployment_target = '10.3'
