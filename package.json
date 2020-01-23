@@ -23,7 +23,9 @@
     "wifi",
     "iot"
   ],
-  "author": "tadasr",
+  "authors": [
+    "tadasr"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/tadasr/react-native-iot-wifi/issues"
