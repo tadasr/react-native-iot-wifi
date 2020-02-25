@@ -15,7 +15,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tadasr/react-native-iot-wifi.git"
+    "url": "git+https://github.com/waltershub/react-native-iot-wifi.git"
   },
   "keywords": [
     "react-native",
