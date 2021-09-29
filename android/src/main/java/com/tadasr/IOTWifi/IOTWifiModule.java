@@ -253,7 +253,7 @@ public class IOTWifiModule extends ReactContextBaseJavaModule {
         String comparableSSID = ('"' + ssid + '"'); // Add quotes because wifiConfig.SSID has them
         if (configList != null) {
             for (WifiConfiguration wifiConfig : configList) {
-                if (wifiConfig.SSID.equals(comparableSSID)) {
+                if (wifiConfig.SSID != null && wifiConfig.SSID.equals(comparableSSID)) {
                     Log.d("IoTWifi", "Found Matching Wifi: "+ wifiConfig.toString());
                     existingNetworkConfigForSSID = wifiConfig;
                     break;
